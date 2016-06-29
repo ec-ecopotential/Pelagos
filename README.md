@@ -7,5 +7,6 @@ By using Earth Observation (remote along with in situ data) assess the state of 
 2. the major drivers of change in their population density (human and ecological e.g. SST changes and impacts of fishing) and  
 3. variables that assess the benefits to the human population living by these areas, like benefits from tourism and whale watching activities.
 
-[Storyline mindmap](/documents/Storyline.JPG)
+<a href="/documents/Storyline.JPG"><img src="/documents/Storyline.JPG"></a>
+
 
