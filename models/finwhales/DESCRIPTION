@@ -1,0 +1,32 @@
+Package: finwhales
+Title: Pelagos storyline for ECOPOTENTIAL
+Version: 0.1.0
+Authors@R: c(
+    person("Samuel", "Bosch", , "mail@samuelbosch.com", role = c("cre", "aut")),
+    person(, "OBIS", , "support@iobis.org", role = "cph")
+    )
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports:
+    rappdirs,
+    robis,
+    sdmpredictors,
+    dplyr,
+    lubridate,
+    ggplot2,
+    sp,
+    raster,
+    marinespeed,
+    dismo,
+    FNN,
+    spThin,
+    biomod2
+Suggests:
+    testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1

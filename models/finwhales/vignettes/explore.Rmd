@@ -1,0 +1,137 @@
+---
+title: "1. Explore distribution"
+author: "Samuel Bosch"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{1. Explore distribution}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(finwhales)
+library(dplyr)
+
+occ <- fw_obis()
+occ <- fw_prepare(occ)
+fw_plotmap(occ)
+fw_plotmonth(occ)
+fw_plotyear(occ)
+```
+
+```{r}
+pred <- fw_climate_predictors()
+mask <- stack(raster::raster(pred, layer=which(names(pred) == 'BO_bathymean')),
+              raster::raster(pred, layer=which(names(pred) == 'BO2_tempmean_ss')))
+occ_validation <- occ %>% filter(year %% 4 == 0)
+occ_validation <- fw_qcfilter(occ_validation, mask, thindistkm=NA)
+occ_train <- occ %>% filter(year %% 4 != 1)
+occ_train <- fw_qcfilter(occ_train, mask, thindistkm=NA)
+
+background_train <- fw_random_background(10000, mask, seed = 42)
+background_validation <- fw_random_background(30000, mask, seed = 60)
+# validationi <- marinespeed:::pwd_sample(fw_xy(occ_validation), fw_xy(background_validation), fw_xy(occ_train), lonlat=TRUE)
+# background_validation <- background_validation[na.omit(validationi),]
+set.seed(6)
+background_validation <- background_validation[sample(1:nrow(background_validation), nrow(occ_validation)),]
+
+folds <- marinespeed::kfold_occurrence_background(occ_train, background_train, 'disc', k = 5, pwd_sample = TRUE)
+
+occ_kfold <- fw_xy(occ_train)
+bg_k1_train <- fw_xy(background_train[fw_false(folds$background$k1),])
+bg_k1_test <- fw_xy(background_train[fw_true(folds$background$k1),])
+bg_k1 <- rbind(bg_k1_train, bg_k1_test)
+options <- fw_biomod_options()
+
+occ_kfold_env <- raster::extract(pred, occ_kfold)
+bg_k1_env <- raster::extract(pred, bg_k1)
+
+sum(!complete.cases(raster::extract(pred, fw_xy(occ_train))))
+sum(!complete.cases(raster::extract(pred, fw_xy(occ_validation))))
+sum(!complete.cases(raster::extract(pred, fw_xy(background_train))))
+sum(!complete.cases(raster::extract(pred, fw_xy(background_train))))
+sum(!complete.cases(raster::extract(pred, fw_xy(background_validation))))
+
+
+formatdata <- fw_biomod_formating_data(occ_kfold, bg_k1, occ_kfold_env, bg_k1_env, 
+                                       fw_xy(occ_validation), fw_xy(background_validation), 
+                                       raster::extract(pred, fw_xy(occ_validation)),
+                                       raster::extract(pred, fw_xy(background_validation)))
+## training / test
+dataSplitTable <- as.matrix(data.frame(RUN1= c(!folds$occurrence$k1, rep(TRUE, nrow(bg_k1_train)), rep(FALSE, nrow(bg_k1_test)))))
+eval_methods <- c('KAPPA', 'TSS', 'ROC', 'FAR', 'SR', 'ACCURACY', 'BIAS', 'POD', 'CSI', 'ETS')
+
+algorithms <- c("GLM", "MAXENT.Phillips", "RF", "SRE")
+model <- biomod2::BIOMOD_Modeling(formatdata
+                                 ,models=algorithms
+                                 ,models.eval.meth=eval_methods
+                                 ,models.options = options
+                                 ,SaveObj = TRUE
+                                 ,do.full.models = FALSE ## if true, models calibrated and evaluated with the whole dataset are done
+                                 ,NbRunEval=1
+                                 ,DataSplitTable=dataSplitTable
+                                 ,VarImport=3
+                                 ,modeling.id = paste0(names(pred), collapse= "_"))
+
+biomod2::get_evaluations(model)
+biomod2::get_variables_importance(model)
+```
+
+
+Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+
+- Never uses retina figures
+- Has a smaller default figure size
+- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+
+## Vignette Info
+
+Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+
+## Styles
+
+The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+
+    output: 
+      rmarkdown::html_vignette:
+        css: mystyles.css
+
+## Figures
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))
