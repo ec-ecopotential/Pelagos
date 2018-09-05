@@ -14,7 +14,7 @@ editor_options:
 ** Plan
 
 [x] 1. get occurrences
-[] 2. get environmental data from FTP (chlo) + Copernicus (sst) + Bathymetry (sdmpredictors BO_bathymean) for each yearmonth that we have whale data for
+[x] 2. get environmental data from FTP (chlo) + Copernicus (sst) + Bathymetry (sdmpredictors BO_bathymean) for each yearmonth that we have whale data for
 [] 3. Explore the data (spatial and temporal distribution, environmental values)
 [] 4. create pseudo-absence data and link to environmental data
 [] 5. create model

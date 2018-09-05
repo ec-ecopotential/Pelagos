@@ -5,10 +5,10 @@
   <evaluateDefaultValues active="0"/>
   <layer-tree-group expanded="1" checked="Qt::PartiallyChecked" name="">
     <customproperties/>
-    <layer-tree-layer expanded="0" providerKey="gdal" checked="Qt::Unchecked" id="proj_future_sstchlobathy2050rcp45_ensemble_sd20180904141912954" source="/Users/samuel/a/projects/pelagos/models/finwhales/Balaenoptera.physalus/proj_future_sstchlobathy2050rcp45_ensemble_sd.img" name="proj_future_sstchlobathy2050rcp45_ensemble_sd">
+    <layer-tree-layer expanded="1" providerKey="gdal" checked="Qt::Unchecked" id="proj_future_sstchlobathy2050rcp45_ensemble_mean20180904141912808" source="/Users/samuel/a/projects/pelagos/models/finwhales/Balaenoptera.physalus/proj_future_sstchlobathy2050rcp45_ensemble_mean.img" name="proj_future_sstchlobathy2050rcp45_ensemble_mean">
       <customproperties/>
     </layer-tree-layer>
-    <layer-tree-layer expanded="1" providerKey="gdal" checked="Qt::Checked" id="proj_future_sstchlobathy2050rcp45_ensemble_mean20180904141912808" source="/Users/samuel/a/projects/pelagos/models/finwhales/Balaenoptera.physalus/proj_future_sstchlobathy2050rcp45_ensemble_mean.img" name="proj_future_sstchlobathy2050rcp45_ensemble_mean">
+    <layer-tree-layer expanded="0" providerKey="gdal" checked="Qt::Checked" id="proj_future_sstchlobathy2050rcp45_ensemble_sd20180904141912954" source="/Users/samuel/a/projects/pelagos/models/finwhales/Balaenoptera.physalus/proj_future_sstchlobathy2050rcp45_ensemble_sd.img" name="proj_future_sstchlobathy2050rcp45_ensemble_sd">
       <customproperties/>
     </layer-tree-layer>
   </layer-tree-group>
@@ -16,10 +16,10 @@
   <mapcanvas>
     <units>degrees</units>
     <extent>
-      <xmin>-0.58749999967500166</xmin>
-      <ymin>29.86666666667500181</ymin>
-      <xmax>20.58750000067499997</xmax>
-      <ymax>45.96666666632499698</ymax>
+      <xmin>-0.61005058540487411</xmin>
+      <ymin>29.93431842386462449</ymin>
+      <xmax>20.56494941494512929</xmax>
+      <ymax>46.03431842351461967</ymax>
     </extent>
     <rotation>0</rotation>
     <projections>0</projections>
@@ -45,17 +45,37 @@
     </custom-order>
   </layer-tree-canvas>
   <legend updateDrawingOrder="true">
-    <legendlayer drawingOrder="-1" open="false" checked="Qt::Unchecked" name="proj_future_sstchlobathy2050rcp45_ensemble_sd" showFeatureCount="0">
-      <filegroup open="false" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="proj_future_sstchlobathy2050rcp45_ensemble_sd20180904141912954" visible="0"/>
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="proj_future_sstchlobathy2050rcp45_ensemble_mean" showFeatureCount="0">
+      <filegroup open="true" hidden="false">
+        <legendlayerfile isInOverview="0" layerid="proj_future_sstchlobathy2050rcp45_ensemble_mean20180904141912808" visible="0"/>
       </filegroup>
     </legendlayer>
-    <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="proj_future_sstchlobathy2050rcp45_ensemble_mean" showFeatureCount="0">
-      <filegroup open="true" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="proj_future_sstchlobathy2050rcp45_ensemble_mean20180904141912808" visible="1"/>
+    <legendlayer drawingOrder="-1" open="false" checked="Qt::Checked" name="proj_future_sstchlobathy2050rcp45_ensemble_sd" showFeatureCount="0">
+      <filegroup open="false" hidden="false">
+        <legendlayerfile isInOverview="0" layerid="proj_future_sstchlobathy2050rcp45_ensemble_sd20180904141912954" visible="1"/>
       </filegroup>
     </legendlayer>
   </legend>
+  <Composer title="map" visible="0">
+    <Composition resizeToContentsMarginLeft="0" snapping="0" showPages="1" guidesVisible="1" resizeToContentsMarginTop="0" worldFileMap="" alignmentSnap="1" printResolution="300" paperWidth="297" gridVisible="0" snapGridOffsetX="0" smartGuides="1" snapGridOffsetY="0" resizeToContentsMarginRight="0" snapTolerancePixels="5" printAsRaster="0" generateWorldFile="0" paperHeight="210" numPages="1" snapGridResolution="10" resizeToContentsMarginBottom="0">
+      <symbol alpha="1" clip_to_extent="1" type="fill" name="">
+        <layer pass="0" class="SimpleFill" locked="0">
+          <prop k="border_width_map_unit_scale" v="0,0,0,0,0,0"/>
+          <prop k="color" v="255,255,255,255"/>
+          <prop k="joinstyle" v="miter"/>
+          <prop k="offset" v="0,0"/>
+          <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
+          <prop k="offset_unit" v="MM"/>
+          <prop k="outline_color" v="0,0,0,255"/>
+          <prop k="outline_style" v="no"/>
+          <prop k="outline_width" v="0.26"/>
+          <prop k="outline_width_unit" v="MM"/>
+          <prop k="style" v="solid"/>
+        </layer>
+      </symbol>
+      <customproperties/>
+    </Composition>
+  </Composer>
   <projectlayers>
     <maplayer minimumScale="inf" maximumScale="1e+08" type="raster" hasScaleBasedVisibilityFlag="0">
       <extent>
