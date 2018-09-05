@@ -50,14 +50,18 @@ fw_plotmonth <- function(occ) {
 }
 
 #' @export
-fw_plotmap <- function(occ, zoom = TRUE) {
+fw_plotmap <- function(occ, zoom = TRUE, colour = NA) {
   data <- occ
   world <- borders("world", colour="gray80", fill="gray80")
   m <- ggplot() +
     world +
-    geom_point(data = data, aes(x = x, y = y), size = 2, stroke = 1, alpha = 0.3, colour = "#FF368B") +
     xlab("longitude") +
     ylab("latitude")
+  if(is.na(colour)) {
+    m <- m + geom_point(data = data, aes_string(x = 'x', y = 'y'), size = 2, stroke = 1, alpha = 0.3, colour = "#FF368B")
+  } else {
+    m <- m + geom_point(data = data, aes_string(x = 'x', y = 'y', colour = colour), size = 2, stroke = 1, alpha = 0.3)
+  }
 
   if (zoom) {
     xrange <- range(data$x)

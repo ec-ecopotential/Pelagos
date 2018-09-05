@@ -23,7 +23,10 @@ Imports:
     dismo,
     FNN,
     spThin,
-    biomod2
+    biomod2,
+    RCurl,
+    stringr,
+    grec
 Suggests:
     testthat,
     knitr,

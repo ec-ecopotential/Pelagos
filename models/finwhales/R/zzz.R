@@ -44,3 +44,11 @@ cache_call <- function(key, expr, env = NULL) {
     return(result)
   }
 }
+
+
+fw_checkdir <- function(directory) {
+  if(!dir.exists(directory)) {
+    dir.create(directory, recursive = TRUE)
+  }
+  directory
+}

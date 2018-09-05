@@ -21,25 +21,71 @@ knitr::opts_chunk$set(
 ```{r}
 library(finwhales)
 library(dplyr)
+library(raster)
+library(ggplot2)
 
 occ <- fw_obis()
+# filter mediterranean
+# occ <- occ[occ$decimalLongitude > -5.62 & occ$decimalLongitude < 36.25 & occ$decimalLatitude > 30.25 & occ$decimalLatitude < 46, ]
+occ <- occ[occ$decimalLongitude > 0 & occ$decimalLongitude < 20 & occ$decimalLatitude > 30.25 & occ$decimalLatitude < 45.5, ]
+
+
+
 occ <- fw_prepare(occ)
+occ <- occ[sample(nrow(occ)),]
+occ <- occ[!duplicated(cbind(round(occ$x * 1000), round(occ$x * 1000))),]
+
 fw_plotmap(occ)
 fw_plotmonth(occ)
 fw_plotyear(occ)
-```
 
-```{r}
 pred <- fw_climate_predictors()
+futurepred <- fw_future_climate()
+names(futurepred) <- names(pred)
+pred <- raster::crop(pred, raster::extent(-0.1, 20.1, 30.26, 45.6))
+futurepred <- raster::crop(futurepred, raster::extent(-0.1, 20.1, 30.26, 45.6))
 mask <- stack(raster::raster(pred, layer=which(names(pred) == 'BO_bathymean')),
-              raster::raster(pred, layer=which(names(pred) == 'BO2_tempmean_ss')))
+              raster::raster(pred, layer=which(names(pred) == 'BO2_tempmean_ss')),
+              raster::raster(pred, layer=which(names(pred) == 'BO2_chlomean_ss_lonlat')))
+
 occ_validation <- occ %>% filter(year %% 4 == 0)
 occ_validation <- fw_qcfilter(occ_validation, mask, thindistkm=NA)
-occ_train <- occ %>% filter(year %% 4 != 1)
+occ_train <- occ %>% filter(year %% 4 != 0)
 occ_train <- fw_qcfilter(occ_train, mask, thindistkm=NA)
 
+fw_plotmap(occ_validation)
+fw_plotmap(occ_train)
+
+occ_plot <- rbind(cbind(occ_train, Type="training"),
+                  cbind(occ_validation, Type="validation"))
+
+occ_plot$monthlabels <- unlist(list("January", "February", "March", "April", "May", 
+                                    "June", "July", "August", "September", "October", "November", "December")[occ_plot$month])
+
+occ_plot$monthlabels <- factor(occ_plot$monthlabels, levels = c("January", "February", "March", "April", "May", 
+                                    "June", "July", "August", "September", "October", "November", "December"))
+
+ggplot2::ggplot(data=occ_plot, ggplot2::aes_string('year', fill='Type')) +
+    ggplot2::geom_histogram(binwidth = 1) +
+    ggplot2::labs(x='Year', y='Count')
+
+ggplot2::ggplot(data=occ_plot, ggplot2::aes_string('month', fill='Type')) +
+    ggplot2::geom_histogram(binwidth = 1) +
+    ggplot2::labs(x='Month', y='Count')
+
+ggplot2::ggplot(data=occ_plot, ggplot2::aes_string('monthlabels', fill='Type')) +
+    ggplot2::geom_bar() +
+    ggplot2::labs(x='Month', y='Count') +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
+
+```
+
+# Build models
+
+```{r}
+
 background_train <- fw_random_background(10000, mask, seed = 42)
-background_validation <- fw_random_background(30000, mask, seed = 60)
+background_validation <- fw_random_background(10000, mask, seed = 60)
 # validationi <- marinespeed:::pwd_sample(fw_xy(occ_validation), fw_xy(background_validation), fw_xy(occ_train), lonlat=TRUE)
 # background_validation <- background_validation[na.omit(validationi),]
 set.seed(6)
@@ -47,91 +93,205 @@ background_validation <- background_validation[sample(1:nrow(background_validati
 
 folds <- marinespeed::kfold_occurrence_background(occ_train, background_train, 'disc', k = 5, pwd_sample = TRUE)
 
+
+plot_response <- function(model, modelprefix, algorithm) {
+  loaded_model <- biomod2::BIOMOD_LoadModels(model, models=algorithm)
+  assign(loaded_model, get(loaded_model), envir = .GlobalEnv)
+  p <- biomod2::response.plot2(models = loaded_model,
+                 Data = biomod2::get_formal_data(model,'expl.var'),
+                 show.variables= biomod2::get_formal_data(model,'expl.var.names'),
+                 do.bivariate = FALSE,
+                 fixed.var.metric = 'median',
+                 col = c("blue", "red"),
+                 save.file="jpeg",
+                 name=paste0('Balaenoptera.physalus/', modelprefix, '_response_', stringr::str_to_lower(algorithm)),
+                 ImageSize=480,
+                 plot=TRUE,
+                 legend = TRUE,
+                 data_species = biomod2::get_formal_data(model,'resp.var'))
+  rm(loaded_model)
+  p
+}
+
 occ_kfold <- fw_xy(occ_train)
-bg_k1_train <- fw_xy(background_train[fw_false(folds$background$k1),])
-bg_k1_test <- fw_xy(background_train[fw_true(folds$background$k1),])
-bg_k1 <- rbind(bg_k1_train, bg_k1_test)
 options <- fw_biomod_options()
 
 occ_kfold_env <- raster::extract(pred, occ_kfold)
-bg_k1_env <- raster::extract(pred, bg_k1)
 
-sum(!complete.cases(raster::extract(pred, fw_xy(occ_train))))
-sum(!complete.cases(raster::extract(pred, fw_xy(occ_validation))))
-sum(!complete.cases(raster::extract(pred, fw_xy(background_train))))
-sum(!complete.cases(raster::extract(pred, fw_xy(background_train))))
-sum(!complete.cases(raster::extract(pred, fw_xy(background_validation))))
+stopifnot(0 == sum(!complete.cases(raster::extract(pred, fw_xy(occ_train)))))
+stopifnot(0 == sum(!complete.cases(raster::extract(pred, fw_xy(occ_validation)))))
+stopifnot(0 == sum(!complete.cases(raster::extract(pred, fw_xy(background_train)))))
+stopifnot(0 == sum(!complete.cases(raster::extract(pred, fw_xy(background_train)))))
+stopifnot(0 == sum(!complete.cases(raster::extract(pred, fw_xy(background_validation)))))
 
-
-formatdata <- fw_biomod_formating_data(occ_kfold, bg_k1, occ_kfold_env, bg_k1_env, 
-                                       fw_xy(occ_validation), fw_xy(background_validation), 
-                                       raster::extract(pred, fw_xy(occ_validation)),
-                                       raster::extract(pred, fw_xy(background_validation)))
-## training / test
-dataSplitTable <- as.matrix(data.frame(RUN1= c(!folds$occurrence$k1, rep(TRUE, nrow(bg_k1_train)), rep(FALSE, nrow(bg_k1_test)))))
 eval_methods <- c('KAPPA', 'TSS', 'ROC', 'FAR', 'SR', 'ACCURACY', 'BIAS', 'POD', 'CSI', 'ETS')
-
 algorithms <- c("GLM", "MAXENT.Phillips", "RF", "SRE")
-model <- biomod2::BIOMOD_Modeling(formatdata
-                                 ,models=algorithms
-                                 ,models.eval.meth=eval_methods
-                                 ,models.options = options
-                                 ,SaveObj = TRUE
-                                 ,do.full.models = FALSE ## if true, models calibrated and evaluated with the whole dataset are done
-                                 ,NbRunEval=1
-                                 ,DataSplitTable=dataSplitTable
-                                 ,VarImport=3
-                                 ,modeling.id = paste0(names(pred), collapse= "_"))
 
-biomod2::get_evaluations(model)
-biomod2::get_variables_importance(model)
+# k 1 to 5
+for (k in paste0('k', 1:5)) {
+  bg_k_train <- fw_xy(background_train[fw_false(folds$background[,k]),])
+  bg_k_test <- fw_xy(background_train[fw_true(folds$background[,k]),])
+  bg_k <- rbind(bg_k_train, bg_k_test)
+  bg_k_env <- raster::extract(pred, bg_k)
+  
+  formatdata <- fw_biomod_formating_data(occ_kfold, bg_k, occ_kfold_env, bg_k_env, 
+                                         fw_xy(occ_validation), fw_xy(background_validation), 
+                                         raster::extract(pred, fw_xy(occ_validation)),
+                                         raster::extract(pred, fw_xy(background_validation)))
+  
+  ## training / test
+  dataSplitTable <- as.matrix(data.frame(RUN1= c(!folds$occurrence[,k], rep(TRUE, nrow(bg_k_train)), rep(FALSE, nrow(bg_k_test)))))
+  model <- biomod2::BIOMOD_Modeling(formatdata
+                                   ,models=algorithms
+                                   ,models.eval.meth=eval_methods
+                                   ,models.options = options
+                                   ,SaveObj = TRUE
+                                   ,do.full.models = FALSE ## if true, models calibrated and evaluated with the whole dataset are done
+                                   ,NbRunEval=1
+                                   ,DataSplitTable=dataSplitTable
+                                   ,VarImport=3
+                                   ,modeling.id = paste0(c(k, names(pred)), collapse= "_"))
+  
+  eval <- biomod2::get_evaluations(model)
+  saveRDS(eval, paste0('Balaenoptera.physalus/evaluations_',k,'.rds'))
+  varimp <- biomod2::get_variables_importance(model)
+  saveRDS(varimp, paste0('Balaenoptera.physalus/varimp_',k,'.rds'))
+  
+  saveRDS(plot_response(model, paste0('sstchlobathy_', k), 'MAXENT.Phillips'),
+          paste0('Balaenoptera.physalus/sstchlobathy_',k,'_response_maxent.rds'))
+  saveRDS(plot_response(model, paste0('sstchlobathy_', k), 'GLM'), 
+          paste0('Balaenoptera.physalus/sstchlobathy_',k,'_response_glm.rds'))
+  
+  modelproj <- biomod2::BIOMOD_Projection(model, stack(pred), 
+                                          paste0("current_sstchlobathy", k),
+                                          output.format = ".img",
+                                          do.stack = FALSE,
+                                          build.clamping.mask = FALSE)
+  
+  futureproj <- biomod2::BIOMOD_Projection(model, stack(futurepred), 
+                                          paste0("future_sstchlobathy2050rcp45", k),
+                                          output.format = ".img",
+                                          do.stack = FALSE,
+                                          build.clamping.mask = FALSE)
+}
 ```
 
+# Plot the results
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+```{r}
+plot_auc <- function() {
+  data <- data.frame()
+  for(k in 1:5) {
+    evalk <- readRDS(paste0('Balaenoptera.physalus/evaluations_k',k,'.rds'))
+    data <- rbind(data, data.frame(AUC=as.numeric(evalk[3,1,1:2,,]), Type='Test', Algorithm=c('GLM', 'MaxEnt'), Fold=as.character(k)))
+    data <- rbind(data, data.frame(AUC=as.numeric(evalk[3,2,1:2,,]), Type='Validation', Algorithm=c('GLM', 'MaxEnt'), Fold=as.character(k)))
+  }
+  p <- ggplot2::ggplot(data, aes(Fold, AUC, colour = Type)) + 
+    ggplot2::geom_point() +
+    facet_grid(. ~ Algorithm)
+  ggsave('Balaenoptera.physalus/plots/evaluations.png', plot = p, width = 20, height = 10, units = "cm", dpi = 700)
+  ggsave('Balaenoptera.physalus/plots/evaluations.svg', plot = p, width = 20, height = 10, units = "cm", dpi = 700)
+  p
+}
+plot_auc()
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+plot_folds_map <- function(occ_train, folds) {
+ data <- cbind(occ_train[,c("x", "y")], Fold = as.character(apply(folds$occurrence[,paste0('k', 1:5)], 1, function(x) which(!x))))
+ p <- fw_plotmap(data, col = 'Fold')
+ ggsave('Balaenoptera.physalus/maps/occ_folds_map.png', plot = p, width = 20, height = 10, units = "cm", dpi = 700)
+ ggsave('Balaenoptera.physalus/maps/occ_folds_map.svg', plot = p, width = 20, height = 10, units = "cm", dpi = 700)
+ p
+}
+plot_folds_map(occ_train, folds)
 
-## Vignette Info
+plot_response_curves <- function() {
+  data <- list()
+  nicenames <- list(BO2_tempmean_ss = "Temperature", BO_bathymean = "Bathymetry", BO2_chlomean_ss_lonlat = "Chlorophyll")
+  for(k in 1:5) {
+    for (alg in c('MaxEnt', 'GLM')) {
+      pd <- readRDS(paste0('Balaenoptera.physalus/sstchlobathy_k',k,'_response_', tolower(alg),'.rds'))
+      names(pd) <- unlist(nicenames[names(pd)])
+      for(n in names(pd)) {
+        responsedata <- pd[[n]]
+        colnames(responsedata) <- c(n, "Response")
+        data[[n]] <- rbind(data[[n]], cbind(responsedata, Algorithm = alg, Fold = as.character(k)))
+      }
+    }
+  }
+  plot_var <- function(d) {
+    ggplot(d, aes_string(x = colnames(d)[1], y = "Response", colour = "Fold")) + 
+      geom_line() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) +
+      facet_grid(. ~ Algorithm)
+  }
+  plottemp <- plot_var(data[['Temperature']])
+  plotbathy <- plot_var(data[['Bathymetry']])
+  plotchlo <- plot_var(data[['Chlorophyll']])
+  # skip bathymetry (low importance, all over the place)
+  p <- cowplot::plot_grid(plottemp, plotchlo, plotbathy, align = "h")
+  saveplot <- function(p, suffix) {
+    pname <- paste0('Balaenoptera.physalus/plots/response_plots', suffix)
+    cowplot::ggsave(paste0(pname, '.png'), plot = p, width = 20, height = 10, units = "cm", dpi = 700)
+    cowplot::ggsave(paste0(pname, '.png'), plot = p, width = 20, height = 10, units = "cm", dpi = 700)  
+  }
+  saveplot(p, '')
+  saveplot(plottemp, '_sst')
+  saveplot(plotchlo, '_chlo')
+  saveplot(plotbathy, '_bathy')
+  list(plottemp, plotbathy, plotchlo)
+}
+presponse <- plot_response_curves()
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+plot_variable_importance <- function() {
+  data <- data.frame()
+  for(k in 1:5) {
+    varimpk <- readRDS(paste0('Balaenoptera.physalus/varimp_k',k,'.rds'))
+    data <- rbind(data, data.frame(Importance=as.numeric(varimpk[1,1:2,,]), 
+                                   Predictor='Temperature', Algorithm=c('GLM', 'MaxEnt'), Fold=as.character(k)))
+    data <- rbind(data, data.frame(Importance=as.numeric(varimpk[3,1:2,,]), 
+                                   Predictor='Chlorophyll', Algorithm=c('GLM', 'MaxEnt'), Fold=as.character(k)))
+    data <- rbind(data, data.frame(Importance=as.numeric(varimpk[2,1:2,,]), 
+                                   Predictor='Bathymetry', Algorithm=c('GLM', 'MaxEnt'), Fold=as.character(k)))
+  }
+  p <- ggplot2::ggplot(data, aes(Fold, Importance, colour = Predictor)) + 
+    ggplot2::geom_point() +
+    facet_grid(. ~ Algorithm)
+  ggsave('Balaenoptera.physalus/plots/varimp.png', plot = p, width = 20, height = 10, units = "cm", dpi = 700)
+  ggsave('Balaenoptera.physalus/plots/varimp.svg', plot = p, width = 20, height = 10, units = "cm", dpi = 700)
+  p
+}
+pvarimp <- plot_variable_importance()
 
-## Styles
-
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+pcombi <- cowplot::plot_grid(pvarimp, presponse[[1]], presponse[[2]], presponse[[3]], 
+                             nrow=2, ncol=2, labels= c('A', 'B', 'C', 'D'))
+ggsave('Balaenoptera.physalus/plots/combi.png', plot = pcombi, width = 15, height = 15, units = "cm", dpi = 700)
+ggsave('Balaenoptera.physalus/plots/combi.svg', plot = pcombi, width = 15, height = 15, units = "cm", dpi = 700)
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+# Build current and future ensemble models
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
+```{r}
+rasterstack_meansd <- function(x) {
+  s0 <- nlayers(x)
+  s1 <- raster(x, layer=1)
+  s2 <- s1^2
+  for(ri in 2:s0) {
+    r <- raster(x, layer=ri)
+    s1 <- s1 + r
+    s2 <- s2 + r^2
+  }
+  list(mean=s1/s0, sd=sqrt((s0 * s2 - s1 * s1)/(s0 * (s0 - 1))))
+}
 
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+build_ensemble <- function (filepattern, outputprefix) {
+  projs <-list.files('Balaenoptera.physalus', filepattern, 
+                     full.names = TRUE, recursive = TRUE)
+  projs <- raster::stack(projs)
+  meansd <- rasterstack_meansd(projs)
+  writeRaster(meansd$mean, paste0(outputprefix, 'ensemble_mean.img'))
+  writeRaster(meansd$sd, paste0(outputprefix, 'ensemble_sd.img'))
+}
+build_ensemble('proj_current_sstchlobathy.*?(GLM|MAXENT.Phillips)[.]img$', 
+               'Balaenoptera.physalus/proj_current_sstchlobathy')
+build_ensemble('proj_future_sstchlobathy.*?(GLM|MAXENT.Phillips)[.]img$', 
+               'Balaenoptera.physalus/proj_future_sstchlobathy2050rcp45_')
 ```
-
-Also a quote using `>`:
-
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
