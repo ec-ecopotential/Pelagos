@@ -1,4 +1,4 @@
 Predictor variable,Categorical,Sample average
-BO2_chlomean_ss_lonlat,false,0.0010564461490898595
-BO2_tempmean_ss,false,18.756631630054418
-BO_bathymean,false,-1407.9420289855072
+BO2_chlomean_ss_lonlat,false,6.143801169789673E-4
+BO2_tempmean_ss,false,18.69004968283833
+BO_bathymean,false,-1374.4782608695652

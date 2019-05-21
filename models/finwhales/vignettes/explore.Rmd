@@ -287,8 +287,8 @@ build_ensemble <- function (filepattern, outputprefix) {
                      full.names = TRUE, recursive = TRUE)
   projs <- raster::stack(projs)
   meansd <- rasterstack_meansd(projs)
-  writeRaster(meansd$mean, paste0(outputprefix, 'ensemble_mean.img'))
-  writeRaster(meansd$sd, paste0(outputprefix, 'ensemble_sd.img'))
+  writeRaster(meansd$mean, paste0(outputprefix, 'ensemble_mean.img'), overwrite = TRUE)
+  writeRaster(meansd$sd, paste0(outputprefix, 'ensemble_sd.img'), overwrite = TRUE)
 }
 build_ensemble('proj_current_sstchlobathy.*?(GLM|MAXENT.Phillips)[.]img$', 
                'Balaenoptera.physalus/proj_current_sstchlobathy')

@@ -1,20 +1,20 @@
-Mon Sep 03 12:33:00 CEST 2018
+Tue May 21 12:50:08 CEST 2019
 MaxEnt version 3.3.3k
 Reading file Back_swd.csv
-readGrid: max memory 477626368, total allocated 257425408, free 241317216, used 16108192, increment 16108192
+readGrid: max memory 477626368, total allocated 257425408, free 241318432, used 16106976, increment 16106976
 Reading samples from Sp_swd.csv
-Read samples: max memory 477626368, total allocated 257425408, free 238632824, used 18792584, increment 2684392
+Read samples: max memory 477626368, total allocated 257425408, free 238634080, used 18791328, increment 2684352
 Making features
-makeFeatures: max memory 477626368, total allocated 257425408, free 235939432, used 21485976, increment 2693392
-Command line used:  environmentallayers=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_00507210/Back_swd.csv samplesfile=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_00507210/Sp_swd.csv projectionlayers=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_00507210/Predictions/Pred_swd.csv outputdirectory=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/Balaenoptera.physalus_AllData_RUN1_MAXENT.Phillips_outputs outputformat=logistic redoifexists visible=FALSE linear=TRUE quadratic=TRUE product=FALSE threshold=FALSE hinge=FALSE lq2lqptthreshold=80 l2lqthreshold=10 hingethreshold=15 beta_threshold=-1 beta_categorical=-1 beta_lqp=-1 beta_hinge=-1 betamultiplier=1 defaultprevalence=0.5 autorun nowarnings notooltips noaddsamplestobackground
-Command line to repeat: java density.MaxEnt nowarnings noprefixes outputdirectory=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/Balaenoptera.physalus_AllData_RUN1_MAXENT.Phillips_outputs projectionlayers=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_00507210/Predictions/Pred_swd.csv samplesfile=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_00507210/Sp_swd.csv environmentallayers=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_00507210/Back_swd.csv nowarnings notooltips noaskoverwrite noproduct nothreshold nohinge noaddsamplestobackground autorun novisible
+makeFeatures: max memory 477626368, total allocated 257425408, free 235949552, used 21475856, increment 2684528
+Command line used:  environmentallayers=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_06627701/Back_swd.csv samplesfile=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_06627701/Sp_swd.csv projectionlayers=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_06627701/Predictions/Pred_swd.csv outputdirectory=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/Balaenoptera.physalus_AllData_RUN1_MAXENT.Phillips_outputs outputformat=logistic redoifexists visible=FALSE linear=TRUE quadratic=TRUE product=FALSE threshold=FALSE hinge=FALSE lq2lqptthreshold=80 l2lqthreshold=10 hingethreshold=15 beta_threshold=-1 beta_categorical=-1 beta_lqp=-1 beta_hinge=-1 betamultiplier=1 defaultprevalence=0.5 autorun nowarnings notooltips noaddsamplestobackground
+Command line to repeat: java density.MaxEnt nowarnings noprefixes outputdirectory=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/Balaenoptera.physalus_AllData_RUN1_MAXENT.Phillips_outputs projectionlayers=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_06627701/Predictions/Pred_swd.csv samplesfile=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_06627701/Sp_swd.csv environmentallayers=Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_06627701/Back_swd.csv nowarnings notooltips noaskoverwrite noproduct nothreshold nohinge noaddsamplestobackground autorun novisible
 Species: Balaenoptera.physalus_AllData_RUN1
 Layers: BO2_chlomean_ss_lonlat BO2_tempmean_ss BO_bathymean
 Layertypes: Continuous Continuous Continuous
 outputdirectory: Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/Balaenoptera.physalus_AllData_RUN1_MAXENT.Phillips_outputs
-projectionlayers: Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_00507210/Predictions/Pred_swd.csv
-samplesfile: Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_00507210/Sp_swd.csv
-environmentallayers: Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_00507210/Back_swd.csv
+projectionlayers: Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_06627701/Predictions/Pred_swd.csv
+samplesfile: Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_06627701/Sp_swd.csv
+environmentallayers: Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/m_06627701/Back_swd.csv
 warnings: false
 tooltips: false
 askoverwrite: false
@@ -25,23 +25,23 @@ addsamplestobackground: false
 autorun: true
 visible: false
 
-getSamples: max memory 477626368, total allocated 257425408, free 235939432, used 21485976, increment 0
+getSamples: max memory 477626368, total allocated 257425408, free 235949552, used 21475856, increment 0
 Balaenoptera.physalus_AllData_RUN1: 
 Regularization values: linear/quadratic/product: 0.139, categorical: 0.250, threshold: 1.310, hinge: 0.500
 69 samples
-Density: max memory 477626368, total allocated 257425408, free 235939432, used 21485976, increment 0
-linearPredictor: max memory 477626368, total allocated 257425408, free 235939432, used 21485976, increment 0
-FeaturedSpace: max memory 477626368, total allocated 257425408, free 235939432, used 21485976, increment 0
-Sequential: max memory 477626368, total allocated 257425408, free 235939432, used 21485976, increment 0
+Density: max memory 477626368, total allocated 257425408, free 235949552, used 21475856, increment 0
+linearPredictor: max memory 477626368, total allocated 257425408, free 235949552, used 21475856, increment 0
+FeaturedSpace: max memory 477626368, total allocated 257425408, free 235949552, used 21475856, increment 0
+Sequential: max memory 477626368, total allocated 257425408, free 235949552, used 21475856, increment 0
 Initial loss: 5.84354441703136
-420: time = 0.040000 loss = 4.775005
-Resulting gain: 1.0685392894592898
-Time since start: 1.661
+80: time = 0.014000 loss = 4.251593
+Resulting gain: 1.5919517433503154
+Time since start: 1.173
 Projecting...
 Writing file Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/Balaenoptera.physalus_AllData_RUN1_MAXENT.Phillips_outputs/Balaenoptera.physalus_AllData_RUN1.csv
 Projecting...
 Reading file Pred_swd.csv
-readGrid: max memory 477626368, total allocated 257425408, free 217307424, used 40117984, increment 18632008
+readGrid: max memory 477626368, total allocated 257425408, free 221335856, used 36089552, increment 14613696
 Writing file Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/Balaenoptera.physalus_AllData_RUN1_MAXENT.Phillips_outputs/Balaenoptera.physalus_AllData_RUN1_Pred_swd.csv
 Writing file Balaenoptera.physalus/models/k2_BO2_tempmean_ss_BO_bathymean_BO2_chlomean_ss_lonlat/Balaenoptera.physalus_AllData_RUN1_MAXENT.Phillips_outputs/Balaenoptera.physalus_AllData_RUN1_Pred_swd_clamping.csv
 Ending

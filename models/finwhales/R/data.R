@@ -20,6 +20,7 @@ fw_climate_predictors <- function() {
 
   pred <- sdmpredictors::load_layers(layers)
   chlo <- sdmpredictors::load_layers('BO2_chlomean_ss', rasterstack = FALSE)[[1]]
+  pred <- raster::crop(pred, chlo@extent)
   chlofront <- fw_fronts(chlo@file@name)
   raster::stack(pred, chlofront)
 }

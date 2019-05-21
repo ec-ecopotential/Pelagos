@@ -4,9 +4,9 @@
     <Metadata>
       <MDI key="LAYER_TYPE">athematic</MDI>
       <MDI key="STATISTICS_MAXIMUM">1000</MDI>
-      <MDI key="STATISTICS_MEAN">30.956277764788</MDI>
+      <MDI key="STATISTICS_MEAN">291.46598082768</MDI>
       <MDI key="STATISTICS_MINIMUM">0</MDI>
-      <MDI key="STATISTICS_STDDEV">173.20331825821</MDI>
+      <MDI key="STATISTICS_STDDEV">454.44825913937</MDI>
     </Metadata>
   </PAMRasterBand>
 </PAMDataset>
