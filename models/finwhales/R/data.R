@@ -1,6 +1,6 @@
 #' @export
 fw_obis <- function() {
-  cache_file <- file.path('modeldata', 'obis_all.rds')
+  cache_file <- file.path(finwhales:::fw_checkdir('modeldata'), 'obis_all.rds')
   if (!file.exists(cache_file)) {
     occ <- robis::occurrence('Balaenoptera physalus')
     saveRDS(occ, cache_file)
@@ -41,11 +41,11 @@ fw_future_climate <- function() {
 fw_getenv <- function(occ, ecopuserpwd, cmemsuserpwd) {
   occ$datetimes <- lubridate::as_datetime(occ$eventDate)
   occ <- mutate(occ, day = lubridate::day(datetimes), month = lubridate::month(datetimes))
-  yearmonths <- occ %>% select(yearcollected, month) %>% distinct()
+  yearmonths <- occ %>% select(date_year, month) %>% distinct()
   for(ymi in 1:NROW(yearmonths)) {
-    year <- yearmonths[ymi,]$yearcollected
+    year <- yearmonths[ymi,]$date_year
     month <- yearmonths[ymi,]$month
-    occfilter <- occ$yearcollected == year & occ$month == month
+    occfilter <- occ$date_year == year & occ$month == month
     xy <- occ[occfilter, c("decimalLongitude", "decimalLatitude")]
 
     env <- list(bathy = finwhales:::fw_bathymetry(),

@@ -34,7 +34,7 @@ occ <- occ[occ$decimalLongitude > -5.62 & occ$decimalLongitude < 36.25 & occ$dec
 # filter no event date
 occ <- occ[!is.na(occ$eventDate),]
 # filter too old
-occ <- occ[occ$yearcollected >= 1998,]
+occ <- occ[occ$date_year >= 1998,]
 # get environment
 env <- fw_getenv(occ, ecopuserpwd, cmemsuserpwd)
 # filter missing environment
@@ -46,7 +46,7 @@ mask <- raster(fw_download_ecop_monthly_chlo(1998, 01, ecopuserpwd))
 background <- fw_random_background(10000, mask, seed = 42)
 occdateindex <- sample(1:nrow(occ), size = nrow(background), replace = TRUE)
 background[,"eventDate"] <- occ[occdateindex,"eventDate"]
-background[,"yearcollected"] <- occ[occdateindex,"yearcollected"]
+background[,"date_year"] <- occ[occdateindex,"date_year"]
 
 folds <- marinespeed::kfold_occurrence_background(occ, background, 'disc', k = 5, pwd_sample = TRUE)
 
